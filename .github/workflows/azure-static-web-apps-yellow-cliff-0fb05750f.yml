@@ -35,7 +35,7 @@ jobs:
 
       - name: Build Angular app
         working-directory: TestProj/src
-        run: npm run build -- --configuration production
+        run: npm run build --configuration production
 
       - name: Deploy to Azure Static Web Apps
         id: builddeploy
