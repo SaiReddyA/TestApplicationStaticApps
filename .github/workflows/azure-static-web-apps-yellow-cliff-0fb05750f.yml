@@ -5,7 +5,7 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronized, reopened, closed]
     branches:
       - main
 
@@ -15,36 +15,38 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     permissions:
-       id-token: write
-       contents: read
+      id-token: write
+      contents: read
+
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
 
-      - name: Install OIDC Client from Core Package
-        run: npm install @actions/core@1.6.0 @actions/http-client
-
-      - name: Get Id Token
-        uses: actions/github-script@v6
-        id: idtoken
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-           script: |
-               const coredemo = require('@actions/core')
-               return await coredemo.getIDToken()
-           result-encoding: string
+          node-version: '18'
 
-      - name: Build And Deploy
+      - name: Install dependencies
+        working-directory: TestProj/src
+        run: npm install
+
+      - name: Build Angular app
+        working-directory: TestProj/src
+        run: npm run build -- --configuration production
+
+      - name: Deploy to Azure Static Web Apps
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_YELLOW_CLIFF_0FB05750F }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "/"             
-          api_location: ""              
-          output_location: "."          
-          app_build_command: ""         # <--- This skips the build
+          app_location: "TestProj/src"                  # Angular app source folder
+          output_location: "TestProj/src/dist/TestProj" # Angular build output folder
+          api_location: ""                              
           github_id_token: ${{ steps.idtoken.outputs.result }}
 
   close_pull_request_job:
