@@ -45,7 +45,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "TestProj/src"                  # Angular project folder
-          output_location: "TestProj/src/dist/TestProj" # Built output folder
+          output_location: "TestProj/src/dist/test-proj/browser" # Built output folder
           api_location: ""                              # No API
 
   close_pull_request_job:
